@@ -1,6 +1,7 @@
 //! Implementation neutral TLS API.
 
 use std::io;
+use std::io::Read;
 use std::fmt;
 use std::error;
 use std::result;
@@ -183,6 +184,10 @@ pub trait TlsConnectorBuilder : Sized + Sync + Send + 'static {
     fn underlying_mut(&mut self) -> &mut Self::Underlying;
 
     fn supports_alpn() -> bool;
+
+    fn set_certificate<R: Read>(&mut self, cert: &mut R) -> Result<()>;
+
+    fn set_private_key<R: Read>(&mut self, key: &mut R) -> Result<()>;
 
     fn set_alpn_protocols(&mut self, protocols: &[&[u8]]) -> Result<()>;
 

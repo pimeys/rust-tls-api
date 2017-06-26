@@ -2,8 +2,12 @@ extern crate tls_api;
 extern crate openssl;
 
 use std::io;
+use std::io::Read;
 use std::result;
 use std::fmt;
+
+use openssl::x509::X509;
+use openssl::pkey::PKey;
 
 use tls_api::Error;
 use tls_api::Result;
@@ -45,6 +49,22 @@ impl tls_api::TlsConnectorBuilder for TlsConnectorBuilder {
     #[cfg(not(has_alpn))]
     fn set_alpn_protocols(&mut self, protocols: &[&[u8]]) -> Result<()> {
         Err(Error::new_other("openssl is compiled without alpn"))
+    }
+
+    fn set_private_key<R: Read>(&mut self, key: &mut R) -> Result<()> {
+        let mut v: Vec<u8> = Vec::new();
+        key.read_to_end(&mut v).map_err(Error::new)?;
+        let pkey = PKey::private_key_from_pem(&mut v).map_err(Error::new)?;
+
+        self.0.builder_mut().set_private_key(&pkey).map_err(Error::new)
+    }
+
+    fn set_certificate<R: Read>(&mut self, cert: &mut R)-> Result<()> {
+        let mut v: Vec<u8> = Vec::new();
+        cert.read_to_end(&mut v).map_err(Error::new)?;
+        let x509 = X509::from_pem(&mut v).map_err(Error::new)?;
+
+        self.0.builder_mut().set_certificate(&x509).map_err(Error::new)
     }
 
     fn add_root_certificate(&mut self, cert: tls_api::Certificate) -> Result<&mut Self> {

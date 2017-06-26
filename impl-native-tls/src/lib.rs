@@ -2,6 +2,7 @@ extern crate tls_api;
 extern crate native_tls;
 
 use std::io;
+use std::io::Read;
 use std::result;
 use std::fmt;
 
@@ -28,6 +29,15 @@ impl tls_api::TlsConnectorBuilder for TlsConnectorBuilder {
     fn supports_alpn() -> bool {
         false
     }
+
+    fn set_private_key<R: Read>(&mut self, _: &mut R) -> Result<()> {
+        Err(Error::new_other("Setting a custom private key is not implemented in rust-native-tls"))
+    }
+
+    fn set_certificate<R: Read>(&mut self, _: &mut R) -> Result<()> {
+        Err(Error::new_other("Setting a custom certificate is not implemented in rust-native-tls"))
+    }
+
 
     fn set_alpn_protocols(&mut self, _protocols: &[&[u8]]) -> Result<()> {
         Err(Error::new_other("ALPN is not implemented in rust-native-tls"))

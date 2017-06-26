@@ -14,6 +14,7 @@ extern crate tls_api;
 extern crate void;
 
 use std::io;
+use std::io::Read;
 use std::result;
 use std::fmt;
 use std::error::Error as std_Error;
@@ -65,6 +66,14 @@ impl tls_api::TlsConnectorBuilder for TlsConnectorBuilder {
     }
 
     fn add_root_certificate(&mut self, _cert: tls_api::Certificate) -> Result<&mut Self> {
+        Err(tls_api::Error::new(Error))
+    }
+
+    fn set_private_key<R: Read>(&mut self, _: &mut R) -> Result<()> {
+        Err(tls_api::Error::new(Error))
+    }
+
+    fn set_certificate<R: Read>(&mut self, _: &mut R) -> Result<()> {
         Err(tls_api::Error::new(Error))
     }
 
